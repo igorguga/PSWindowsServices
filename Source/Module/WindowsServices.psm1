@@ -103,8 +103,35 @@ function Uninstall-WindowsService
     Write-Output "Removing service ""$DisplayName""..."
     $service = Get-WmiObject -Class Win32_Service -Filter "DisplayName='$DisplayName'" -ErrorAction Stop
     if ($service -ne $null) { 
-        $service.Delete() 
-        Write-Output "Service ""$DisplayName"" was removed!"
+       switch(($service.Delete()).ReturnValue)
+        {
+            0 {Write-Output "Service ""$DisplayName"" was removed!"}
+            1 {Write-Error "The request is not supported."}
+            2 {Write-Error "The user did not have the necessary access."}
+            3 {Write-Error "The service cannot be stopped because other services that are running are dependent on it."}
+            4 {Write-Error "The requested control code is not valid, or it is unacceptable to the service."}
+            5 {Write-Error "The requested control code cannot be sent to the service because the state of the service (Win32_BaseService.State property) is equal to 0, 1, or 2."}
+            6 {Write-Error "The service has not been started."}
+            7 {Write-Error "The service did not respond to the start request in a timely fashion."}
+            8 {Write-Error "Unknown failure when starting the service."}
+            9 {Write-Error "The directory path to the service executable file was not found."}
+            10 {Write-Error "The service is already running."}
+            11 {Write-Error "The database to add a new service is locked."}
+            12 {Write-Error "A dependency this service relies on has been removed from the system."}
+            13 {Write-Error "The service failed to find the service needed from a dependent service."}
+            14 {Write-Error "The service has been disabled from the system."}
+            15 {Write-Error "The service does not have the correct authentication to run on the system."}
+            16 {Write-Error "This service is being removed from the system."}
+            17 {Write-Error "The service has no execution thread."}
+            18 {Write-Error "The service has circular dependencies when it starts."}
+            19 {Write-Error "A service is running under the same name."}
+            20 {Write-Error "The service name has invalid characters."}
+            21 {Write-Error "Invalid parameters have been passed to the service."}
+            22 {Write-Error "The account under which this service runs is either invalid or lacks the permissions to run the service."}
+            23 {Write-Error "The service exists in the database of services available from the system."}
+            24 {Write-Error "The service is currently paused in the system."}
+            default {Write-Output "Unkown return value"}
+        }
     }
     else {
         Write-Error "Service ""$DisplayName"" not found! No action done."
